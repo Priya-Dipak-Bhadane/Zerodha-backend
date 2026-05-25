@@ -223,6 +223,10 @@ mongoose.connect(uri)
    console.log(err);
 });
 
+app.get("/", (req, res) => {
+   res.send("Backend is running successfully!");
+});
+
 app.listen(PORT, () => {
    console.log(`Server running on port ${PORT}`);
 });
