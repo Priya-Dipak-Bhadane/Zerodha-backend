@@ -11,6 +11,7 @@ const cors = require('cors');
 const { HoldingsModel } = require("./model/HoldingsModel");
 const { PositionsModel } = require("./model/PositionsModel");
 const { OrdersModel } = require('./model/OrdersModel');
+const { UserModel } = require("./model/UserModel");
 
 
 const PORT = process.env.PORT || 3002;
@@ -215,6 +216,50 @@ app.post("/newOrder", async(req, res)=>{
    res.send("Order saved!");
 })
 
+app.post("/signup", async (req, res) => {
+
+   try {
+
+      console.log(req.body);
+
+      const { name, email, password } = req.body;
+
+      if(!name || !email || !password){
+         return res.status(400).json({
+            message: "All fields required",
+         });
+      }
+
+      const existingUser = await UserModel.findOne({ email });
+
+      if(existingUser){
+         return res.status(400).json({
+            message: "User already exists",
+         });
+      }
+
+      const newUser = new UserModel({
+         name,
+         email,
+         password,
+      });
+
+      await newUser.save();
+
+      res.status(201).json({
+         message: "Signup successful",
+      });
+
+   } catch(err){
+
+      console.log(err);
+
+      res.status(500).json({
+         message: "Server error",
+      });
+   }
+});
+
 mongoose.connect(uri)
 .then(() => {
    console.log("DB connected!");
@@ -227,8 +272,8 @@ app.get("/", (req, res) => {
    res.send("Backend is running successfully!");
 });
 
-app.listen(PORT, () => {
-   console.log(`Server running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//    console.log(`Server running on port ${PORT}`);
+// });
 
 module.exports = app;
